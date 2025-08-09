@@ -91,17 +91,19 @@ func ValidateToken(tokenString string) (*User, error) {
 		return nil, initError
 	}
 
+	isDevToken := tokenString == devToken
+
 	// Parse and validate JWT
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtSecret), nil
 	})
 
-	if err != nil {
+	if err != nil && !isDevToken {
 		return nil, err
 	}
 
-	if !token.Valid && tokenString != devToken {
+	if !token.Valid && !isDevToken {
 		return nil, errors.New("invalid token")
 	}
 
